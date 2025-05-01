@@ -1,48 +1,22 @@
 #!/bin/bash
-usage() 
 
-max_depth=""
-if [ "$1" == "--max_depth" ]; then
-    if [ $# -lt 4 ]; then
-        usage
-    fi
-    max_depth="$2"
-    input_dir="$3"
-    output_dir="$4"
-else
-    if [ $# -ne 2 ]; then
-        usage
-    fi
-    input_dir="$1"
-    output_dir="$2"
-fi
 
-if [ ! -d "$input_dir" ]; then
+if [ "$#" -lt 2 ]; then
+    echo "Недостаточно аргументов, должны быть указаны входящая и исходящая директории"
     exit 1
 fi
 
-mkdir -p "$output_dir"
+input_dir="$1"
+output_dir="$2"
 
-fc="find \"$input_dir\" -type f"
-if [ -n "$max_depth" ]; then
-    fc+=" -maxdepth $max_depth"
+
+if [ ! -d "$input_dir" ]; then
+    echo "Входящая директория не существует, укажите правильную директороию"
+    exit 1
 fi
 
-eval "$fc" | while read -r file; do
-    filename=$(basename "$file")
-    de="$output_dir/$filename"
-    count=1
-
-    while [ -e "$dest" ]; do
-        base="${filename%.*}"
-        ext="${filename##*.}"
-        if [[ "$base" == "$ext" ]]; then
-            ext=""
-        else
-            ext=".$ext"
-        fi
-        de="$output_dir/${base}_$count$ext"
-        ((count++))
-    done
-    cp "$file" "$de"
-done
+if [ ! -d "$output_dir" ]; then
+    echo "Исходящая директория не существует, будет создана автамотически"
+    mkdir -p "$output_dir"
+fi
+find "$input_dir" -type f -exec cp -t "$output_dir" --{}+
