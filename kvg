@@ -1,63 +1,23 @@
 #!/bin/bash
 
-max_depth=""
-posargs=()
 
-while [[ $# -gt 0 ]]; do
-    case "$1" in
-        --max_depth)
-            max_depth="$2"
-            shift 2
-            ;;
-        *)
-            posargs+=("$1")
-            shift
-            ;;
-    esac
-done
-
-input_dir="${posargs[0]}"
-output_dir="${posargs[1]}"
-
-
-if [[ -z "$input_dir" || -z "$output_dir" ]]; then
-    echo "Недостаточно аргументов. Использование: $0 [--max_depth N] /input/dir /output/dir"
+if [ "$#" -lt 2 ]; then
+    echo "Недостаточно аргументов, должны быть указаны входящая и исходящая директории"
     exit 1
 fi
 
-if [[ ! -d "$input_dir" ]]; then
-    echo "Входящая директория не существует"
+input_dir="$1"
+output_dir="$2"
+
+
+if [ ! -d "$input_dir" ]; then
+    echo "Входящая директория не существует, укажите правильную директороию"
     exit 1
 fi
 
-mkdir -p "$output_dir"
-
-find_command=("find" "$input_dir" "-type" "f")
-if [[ -n "$max_depth" ]]; then
-    find_command+=("-maxdepth" "$max_depth")
+if [ ! -d "$output_dir" ]; then
+    echo "Исходящая директория не существует, будет создана автамотически"
+    mkdir -p "$output_dir"
 fi
+find "$input_dir" -type f -exec cp -t "$output_dir" --{}+
 
-"${find_command[@]}" | while read -r file; do
-    filename=$(basename -- "$file")
-    dest="$output_dir/$filename"
-
-    if [[ -e "$dest" ]]; then
-        base="${filename%.*}"
-        ext="${filename##*.}"
-        if [[ "$base" == "$ext" ]]; then
-            base="$filename"
-            ext=""
-        else
-            ext=".$ext"
-        fi
-        count=1
-        newn="${base}_${count}${ext}"
-        while [[ -e "$output_dir/$newn" ]]; do
-            ((count++))
-            newn="${base}_${count}${ext}"
-        done
-        dest="$output_dir/$newn"
-    fi
-
-    cp -- "$file" "$dest"
-done
