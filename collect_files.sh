@@ -20,3 +20,4 @@ if [ ! -d "$output_dir" ]; then
     mkdir -p "$output_dir"
 fi
 find "$input_dir" -type f -exec cp -t "$output_dir" -- {} +
+
