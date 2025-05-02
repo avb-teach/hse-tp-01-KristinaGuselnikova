@@ -19,5 +19,5 @@ if [ ! -d "$output_dir" ]; then
     echo "Исходящая директория не существует, будет создана автамотически"
     mkdir -p "$output_dir"
 fi
-find "$input_dir" -type f -exec cp -t "$output_dir" --{}+
+find "$input_dir" -type f -exec cp -t "$output_dir" -- {} +
 
